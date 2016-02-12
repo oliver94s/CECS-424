@@ -26,6 +26,7 @@ void* my_alloc(int size)
 	int frag = size % void_size;
 	size += frag;
 	Block *temp = free_head;
+	Block* prev = temp;
 	while (temp)
 	{
 		if (temp->block_size >= size)
@@ -49,6 +50,8 @@ void* my_alloc(int size)
 				b->block_size = temp->block_size - size - overhead;
 				b->data = (Block*)((unsigned char*)b + overhead);
 				b->next_block = temp->next_block;
+				prev->next_block = b;
+				temp->next_block = NULL;
 				temp->block_size = size;
 				return &temp->data;
 			}
@@ -62,13 +65,13 @@ void* my_alloc(int size)
 			else // No Split and Not Head
 			{
 				printf("No Split and Not Head\n");
-				Block* prev = temp;
 				temp->next_block;
 				return &prev->data;
 			}
 		}
 		else
 		{
+			Block* prev = temp;
 			temp = temp->next_block;
 		}
 	} 
@@ -142,18 +145,14 @@ void test_4()
 void test_5()
 {
 	my_initialize_heap(3000);
-	int* arr = (int*)my_alloc((100 * sizeof(int)));;
-	for (int i = 0; i < 100; i++)
-	{
-		arr[i] = i;
-	}
+	int* arr = (int*)my_alloc((100 * sizeof(int)));
+	int* i = (int*)my_alloc(sizeof(int));
+	
+	printf("address: %p\taddress: %p\n", arr, i);
 
 	my_free(arr);
 
-	for (int i = 0; i < 100; i++)
-	{
-		printf("address: %p\tvalue: %i\n", &arr[i], arr[i]);
-	}
+	printf("address: %p\taddress: %p\n", arr, i);
 
 	system("pause");
 	
