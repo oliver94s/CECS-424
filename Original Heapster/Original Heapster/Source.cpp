@@ -20,10 +20,12 @@ void my_initialize_heap(int size)
 	free_head->block_size = size;
 	free_head->next_block = NULL;
 }
-//return an address 
+
 void* my_alloc(int size)
 {
-	int frag = size % void_size;
+	int frag = 0;
+	if (size % void_size != 0)
+		frag = 4 - size % void_size;
 	size += frag;
 	Block *temp = free_head;
 	Block* prev = temp;
@@ -40,6 +42,7 @@ void* my_alloc(int size)
 				b->data = (Block*)((unsigned char*)b + overhead);
 				b->next_block = free_head->next_block;
 				free_head->block_size = size;
+				free_head->next_block = NULL;
 				free_head = b;
 				return &temp->data;
 			}
@@ -65,7 +68,8 @@ void* my_alloc(int size)
 			else // No Split and Not Head
 			{
 				printf("No Split and Not Head\n");
-				temp->next_block;
+				temp = temp->next_block;
+				prev->next_block = NULL;
 				return &prev->data;
 			}
 		}
@@ -75,7 +79,6 @@ void* my_alloc(int size)
 			temp = temp->next_block;
 		}
 	} 
-	
 	return 0;
 }
 
@@ -110,7 +113,6 @@ void test_2()
 	my_free(x);
 	my_free(y);
 	system("pause");
-
 }
 
 void test_3()
@@ -147,15 +149,10 @@ void test_5()
 	my_initialize_heap(3000);
 	int* arr = (int*)my_alloc((100 * sizeof(int)));
 	int* i = (int*)my_alloc(sizeof(int));
-	
 	printf("address: %p\taddress: %p\n", arr, i);
-
 	my_free(arr);
-
 	printf("address: %p\taddress: %p\n", arr, i);
-
 	system("pause");
-	
 }
 
 void menu()
@@ -164,9 +161,7 @@ void menu()
 	int size;
 	printf("enter a positive interger\n");
 	scanf_s("%d", &size);
-
 	int *arr = (int*)my_alloc(sizeof(int) * size);
-
 	int x;
 	double mean = 0;
 	for (int i = 0; i < size; i++)
